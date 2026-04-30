@@ -1,6 +1,5 @@
----
 
-#  Updated README.md (BFSI-focused)
+#  README.md
 
 Replace your current README with this:
 
