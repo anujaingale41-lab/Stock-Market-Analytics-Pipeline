@@ -1,2 +1,7 @@
 # config.py
-DB_URI = "postgresql://postgres:Vidhanti0413@localhost:5432/stock_db"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_URI= os.getenv("DB_URI")
