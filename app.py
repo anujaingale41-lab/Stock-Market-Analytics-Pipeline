@@ -1,7 +1,7 @@
 from flask import Flask, request
 from models import StockData, db
 from config import DB_URI
-from services.fetch_data import fetch_stock_data
+from src.ingestion.fetch_data import fetch_stock_data
 from datetime import datetime
 from services.analytics import calculate_analytics
 

@@ -1,210 +1,204 @@
+# Stock Market Analytics Pipeline
 
-#  README.md
-
-Replace your current README with this:
-
-```markdown
-#  Stock Market Analytics Pipeline (BFSI-Oriented)
-
-An end-to-end financial data pipeline that ingests stock market data from an external API, stores it in PostgreSQL, and computes risk & performance analytics.
+An end-to-end **data engineering pipeline** that ingests stock market data, processes it, and stores it in a scalable cloud-based data lake (AWS S3), with an API trigger and testing layer.
 
 ---
 
-##  Features
+#  Overview
 
--  Real-time stock data ingestion via Alpha Vantage API  
--  Data storage using PostgreSQL + SQLAlchemy  
--  Secure API key management using environment variables  
--  REST APIs built with Flask  
--  Financial analytics for performance and risk evaluation  
+This project demonstrates how to build a **modular data pipeline** using Python, following industry best practices such as:
 
----
-
-##  Analytics Capabilities (BFSI Focus)
-
-The pipeline computes key financial metrics:
-
-###  Performance Metrics
-- Total Return (%)  
-- Average Daily Return  
-
-###  Risk Metrics
-- Volatility (Standard Deviation of Returns)  
-- Maximum Drawdown (Peak-to-trough loss)  
-
-###  Trend Indicators
-- 5-day Moving Average  
-- 10-day Moving Average  
+* Layered architecture (Ingestion → Transformation → Loading)
+* Cloud storage (AWS S3)
+* API-triggered pipeline execution
+* Data validation and cleaning
+* Unit testing with pytest
 
 ---
 
-##  Architecture
+# Architecture
 
 ```
-API (Alpha Vantage)
-↓
-Ingestion Layer (fetch_data.py)
-↓
-PostgreSQL Database
-↓
-Analytics Layer (analytics.py)
-↓
+Client Request
+     ↓
 Flask API (app.py)
-
+     ↓
+Pipeline Runner (run_pipeline.py)
+     ↓
+Ingestion → Transformation → Loading
+     ↓
+AWS S3 (Data Lake)
 ```
 
 ---
 
-## 🛠️ Tech Stack
+# Tech Stack
 
-- Python  
-- Flask  
-- PostgreSQL  
-- SQLAlchemy  
-- Alpha Vantage API  
-- python-dotenv  
+* **Python**
+* **Pandas**
+* **AWS S3 (boto3)**
+* **Flask (API layer)**
+* **Pytest (testing)**
+* **dotenv (environment variables)**
 
 ---
 
-##  Project Structure
+# Project Structure
 
 ```
-Stock Market Pipeline/
+Stock-Market-Analytics-Pipeline/
 │
-├── app.py
-├── config.py
-├── models.py
-├── services/
-│   ├── fetch_data.py
-│   └── analytics.py
-├── .env
-├── .gitignore
+├── src/
+│   ├── ingestion/         # Fetch stock data
+│   ├── transformation/    # Clean & validate data
+│   ├── loading/           # Upload to S3
+│   ├── pipeline/          # Orchestration logic
+│   └── utils/             # Logging (optional)
+│
+├── tests/                 # Unit tests
+├── app.py                 # API trigger
+├── config.py              # Configurations
+├── models.py              # Database models (optional)
 ├── requirements.txt
-└── README.md
-
-```
----
-
-##  Setup Instructions
-
-### Clone repository
-
-```
-git clone [https://github.com/your-username/stock-market-pipeline.git](https://github.com/your-username/stock-market-pipeline.git)
-cd stock-market-pipeline
-
+├── README.md
+└── .env                   # Environment variables (not committed)
 ```
 
 ---
 
-### Create virtual environment
+# Pipeline Flow
+
+1. **Ingestion**
+
+   * Fetches stock data via API
+   * Example: AAPL, TSLA
+
+2. **Transformation**
+
+   * Cleans raw data
+   * Converts data types
+   * Removes invalid records
+
+3. **Loading**
+
+   * Stores processed data in AWS S3
+   * Partitioned by date:
+
+   ```
+   stock-data/date=YYYY-MM-DD/data.csv
+   ```
+
+---
+
+# AWS S3 Integration
+
+* Data is stored in a structured format for scalability
+* Example path:
 
 ```
+s3://your-bucket-name/stock-data/date=2026-05-04/data.csv
+```
+
+---
+
+# Running Tests
+
+```bash
+pytest
+```
+
+Tests cover:
+
+* Data ingestion
+* Data transformation
+* Pipeline execution
+
+---
+
+#  How to Run
+
+## 1. Clone repo
+
+```bash
+git clone https://github.com/your-username/Stock-Market-Analytics-Pipeline.git
+cd Stock-Market-Analytics-Pipeline
+```
+
+---
+
+## 2. Create virtual environment
+
+```bash
 python -m venv .venv
-..venv\Scripts\activate
-
+.venv\Scripts\activate   # Windows
 ```
 
 ---
 
-### Install dependencies
+## 3. Install dependencies
 
-```
+```bash
 pip install -r requirements.txt
-
 ```
 
 ---
 
-### Configure environment variables
+## 4. Setup environment variables
 
-Create `.env`:
-
-```
-ALPHA_VANTAGE_API_KEY=your_api_key
+Create `.env` file:
 
 ```
-
----
-
-### Configure database
-
-Update `config.py`:
-
-```
-DB_URI = "postgresql://postgres:your_password@localhost:5432/stock_db"
-
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_REGION=ap-south-1
 ```
 
 ---
 
-### Run application
+## 5. Run pipeline
 
-```
-python app.py
-
-```
-
----
-
-## API Endpoints
-
-### Fetch Stock Data
-
-```
-GET /fetch-stock?symbol=IBM
-
+```bash
+python -m src.pipeline.run_pipeline
 ```
 
 ---
 
-### Financial Analytics
+## 6. Run via API (optional)
+
+```bash
+flask run
+```
+
+Then open:
 
 ```
-GET /analytics?symbol=IBM
-
-```
-
----
-
-##  Sample Output
-
-```
-{
-"symbol": "IBM",
-"records": 100,
-"total_return_percent": 8.23,
-"average_daily_return": 0.0012,
-"volatility": 0.02,
-"max_drawdown": 0.12,
-"moving_avg_5": 145.2,
-"moving_avg_10": 142.8
-}
-
+http://127.0.0.1:5000/fetch?symbol=AAPL
 ```
 
 ---
 
-##  Security
+# Key Features
 
-- API keys stored in `.env`  
-- `.env` excluded via `.gitignore`  
-
----
-
-## Future Enhancements
-
-- Portfolio-level analytics  
-- AWS deployment (S3 + EC2)  
-- Scheduled ingestion (Airflow / cron)  
-- Data visualization dashboard  
+* Modular pipeline architecture
+* Cloud data storage (S3)
+* API-triggered execution
+* Data validation and cleaning
+* Test coverage with pytest
+* Scalable and extensible design
 
 ---
 
-## Author
+#  Author
 
-Anuja Ingale
+**Anuja Ingale**
+Aspiring Data Engineer | Data Analyst
 
 ---
-## ⭐ If you like this project, give it a star!
-```
+
+#  Summary
+
+This project demonstrates the transition from:
+
+* Script-based data processing 
+  to
+* Scalable, modular data engineering pipeline 
