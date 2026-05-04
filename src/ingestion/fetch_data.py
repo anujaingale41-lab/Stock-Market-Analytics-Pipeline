@@ -11,7 +11,16 @@ API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
 def fetch_stock_data(symbol):
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={API_KEY}"
 
-    response = requests.get(url)
+    try:
+        response = requests.get(url, timeout = 10)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print('Error fetching stock data:', e)
+        return None
+    except requests.exceptions/TimeoutError:
+        print('Request timed out while fetching stock data')
+        return None
+
     data = response.json()
 
     if "Time Series (Daily)" not in data:

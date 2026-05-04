@@ -1,9 +1,13 @@
+import os
+
 from flask import Flask, request
+from numpy import select
 from models import StockData, db
 from config import DB_URI
 from src.ingestion.fetch_data import fetch_stock_data
 from datetime import datetime
 from services.analytics import calculate_analytics
+from src.transformation import clean_data
 
 app = Flask(__name__)
 
@@ -31,12 +35,17 @@ def fetch_stock():
     if not symbol:
         return{'error':'Please provide stock symbol'}, 400
 
-    data= fetch_stock_data(symbol)
-
+    try:
+        data = fetch_stock_data(symbol)
+    except Exception as e:
+        return {'error': str(e)}, 500   
+    
     if not data:
         return {'error':'API failed or limit reached'},500
 
-    for item in data:
+
+    cleaned_data = clean_data(data)
+    for item in cleaned_data:
         stock= StockData(
             symbol=item['symbol'],
             date=datetime.strptime(item['date'],'%Y-%m-%d').date(),
@@ -59,7 +68,7 @@ def analytics():
     if not symbol:
         return {'error':'Please provide stock symbol'},400
     
-    data= StockData.query.filter_by(symbol=symbol).order_by(StockData.date).all()
+    data = db.session.execute(select(StockData).where(StockData.symbol == symbol).order_by(StockData.date)).scalars().all()
 
     if not data:
          return {'error':' No data found'}, 404
@@ -70,4 +79,4 @@ def analytics():
     
 #run server
 if __name__=='__main__':
-    app.run(debug=True)
+    app.run(debug=os.getenv('FLASK_DEBUG', 'False').lower() in ['true', '1', 't'])

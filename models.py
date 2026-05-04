@@ -1,9 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import UniqueConstraint
+
 
 db = SQLAlchemy()
 
 class StockData(db.Model):
     __tablename__ = 'stock_data'
+
+    __table_args__ = (UniqueConstraint('symbol', 'date', name='unique_stock_date'),)
 
     id = db.Column(db.Integer , primary_key = True)
 
@@ -26,7 +30,7 @@ class StockData(db.Model):
     def to_dict(self):
         return {
             'symbol':self.symbol,
-            'date': self.date,
+            'date': str(self.date),
             'open': self.open,
             'high': self.high,
             'low' : self.low,

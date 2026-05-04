@@ -6,7 +6,7 @@ def calculate_analytics(data):
     returns = [(closes[i]-closes[i-1])/closes[i-1] for i in range(1,len(closes))]
 
     avg_return = sum(returns)/len(returns)
-    total_return = ((closes[-1]-closes[0]/closes[0]))*100
+    total_return = ((closes[-1] - closes[0])/ closes[0]) *100
 
     #volatility
     mean = avg_return
@@ -21,8 +21,8 @@ def calculate_analytics(data):
         if price> peak:
             peak= price
         drawdown = (peak-price)/peak
-    if drawdown > max_drawdown:
-        max_drawdown = drawdown
+        if drawdown > max_drawdown:
+           max_drawdown = drawdown
 
     #moving averages
     def moving_avg(data, window):
