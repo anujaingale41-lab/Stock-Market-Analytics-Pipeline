@@ -1,13 +1,13 @@
 import os
 
 from flask import Flask, request
-from numpy import select
+from sqlalchemy import select
 from models import StockData, db
 from config import DB_URI
 from src.ingestion.fetch_data import fetch_stock_data
 from datetime import datetime
 from services.analytics import calculate_analytics
-from src.transformation import clean_data
+from src.transformation.clean_data import clean_data
 
 app = Flask(__name__)
 
@@ -48,7 +48,7 @@ def fetch_stock():
     for item in cleaned_data:
         stock= StockData(
             symbol=item['symbol'],
-            date=datetime.strptime(item['date'],'%Y-%m-%d').date(),
+            date=item['date'],
             open=item['open'],
             high=item['high'],
             low=item['low'],
